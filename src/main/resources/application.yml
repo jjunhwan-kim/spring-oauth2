@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: local-group
+
+    group:
+      local-group: local-db, local-oauth2
