@@ -1,6 +1,7 @@
 package com.example.oauth2.oauth2.config;
 
-import com.example.oauth2.oauth2.exception.BadRequestException;
+import com.example.oauth2.jwt.JwtToken;
+import com.example.oauth2.jwt.TokenProvider;
 import com.example.oauth2.oauth2.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -8,7 +9,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +22,7 @@ import static com.example.oauth2.oauth2.config.HttpCookieOAuth2AuthorizationRequ
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final TokenProvider tokenProvider;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -40,9 +41,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .map(Cookie::getValue);
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+        JwtToken token = tokenProvider.createToken(authentication);
 
         return UriComponentsBuilder.fromUriString(targetUrl)
-                .queryParam("token", "test_token")
+                .queryParam("access_token", token.getAccessToken())
+                .queryParam("refresh_token", token.getRefreshToken())
                 .build().toUriString();
     }
 

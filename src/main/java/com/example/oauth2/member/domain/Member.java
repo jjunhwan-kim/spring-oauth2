@@ -37,7 +37,7 @@ public class Member {
     private Boolean withdrawal;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Authority authority;
 
     private Member(AuthProvider provider,
                    String providerId,
@@ -58,7 +58,7 @@ public class Member {
         this.nickname = nickname;
         this.image = image;
         this.withdrawal = false;
-        this.role = Role.USER;
+        this.authority = Authority.ROLE_USER;
     }
 
     public static Member of(AuthProvider provider,

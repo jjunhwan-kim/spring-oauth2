@@ -3,4 +3,4 @@ spring:
     active: local-group
 
     group:
-      local-group: local-db, local-oauth2
+      local-group: local-db, local-oauth2, local-jwt

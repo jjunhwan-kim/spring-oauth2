@@ -6,20 +6,18 @@ import com.example.oauth2.member.repository.MemberRepository;
 import com.example.oauth2.oauth2.exception.OAuth2AuthenticationProcessingException;
 import com.example.oauth2.oauth2.user.OAuth2UserInfo;
 import com.example.oauth2.oauth2.user.OAuth2UserInfoFactory;
+import com.example.oauth2.security.OAuth2UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -28,6 +26,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
 
+    /**
+     * DefaultOAuth2UserService 구현체를 사용하여 oAuth2UserRequest 의 사용자 정보를 불러옵니다. (oAuth2User)
+     *
+     * @param oAuth2UserRequest
+     * @return
+     * @throws OAuth2AuthenticationException
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
 
@@ -43,6 +48,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
+    /**
+     * OAuth2 사용자 정보를
+     * @param userRequest
+     * @param oAuth2User
+     * @return
+     */
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
         String registrationId = userRequest.getClientRegistration()
@@ -76,10 +87,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             member = registerNewUser(provider, oAuth2UserInfo);
         }
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(member.getRole().toString())),
-                oAuth2UserInfo.getAttributes(),
-                oAuth2UserInfo.getNameAttributeKey());
+        return OAuth2UserPrincipal.create(member, oAuth2UserInfo.getAttributes());
     }
 
     private Member registerNewUser(AuthProvider provider, OAuth2UserInfo oAuth2UserInfo) {
