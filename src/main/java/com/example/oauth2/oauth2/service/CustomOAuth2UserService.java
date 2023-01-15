@@ -6,7 +6,7 @@ import com.example.oauth2.member.repository.MemberRepository;
 import com.example.oauth2.oauth2.exception.OAuth2AuthenticationProcessingException;
 import com.example.oauth2.oauth2.user.OAuth2UserInfo;
 import com.example.oauth2.oauth2.user.OAuth2UserInfoFactory;
-import com.example.oauth2.security.OAuth2UserPrincipal;
+import com.example.oauth2.security.domain.OAuth2UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;

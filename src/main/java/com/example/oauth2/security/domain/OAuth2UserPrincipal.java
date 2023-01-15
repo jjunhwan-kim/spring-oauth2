@@ -1,4 +1,4 @@
-package com.example.oauth2.security;
+package com.example.oauth2.security.domain;
 
 import com.example.oauth2.member.domain.AuthProvider;
 import com.example.oauth2.member.domain.Member;
@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class OAuth2UserPrincipal implements OAuth2User, UserDetails {
+public class OAuth2UserPrincipal implements OAuth2User, UserDetails, UserProvider {
 
     private final AuthProvider provider;
     private final String email;
@@ -89,6 +89,7 @@ public class OAuth2UserPrincipal implements OAuth2User, UserDetails {
         return email;
     }
 
+    @Override
     public AuthProvider getProvider() {
         return provider;
     }

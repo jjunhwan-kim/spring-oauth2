@@ -1,7 +1,7 @@
 package com.example.oauth2.oauth2.config;
 
 import com.example.oauth2.jwt.JwtToken;
-import com.example.oauth2.jwt.TokenProvider;
+import com.example.oauth2.jwt.JwtTokenProvider;
 import com.example.oauth2.oauth2.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -22,7 +22,7 @@ import static com.example.oauth2.oauth2.config.HttpCookieOAuth2AuthorizationRequ
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
-    private final TokenProvider tokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -41,7 +41,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .map(Cookie::getValue);
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
-        JwtToken token = tokenProvider.createToken(authentication);
+        JwtToken token = jwtTokenProvider.createToken(authentication);
 
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("access_token", token.getAccessToken())

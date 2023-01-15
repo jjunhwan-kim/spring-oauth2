@@ -2,26 +2,35 @@ package com.example.oauth2.jwt;
 
 import com.example.oauth2.jwt.exception.InvalidTokenException;
 import com.example.oauth2.member.domain.AuthProvider;
-import com.example.oauth2.security.OAuth2UserPrincipal;
+import com.example.oauth2.security.domain.UserProvider;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
-public class TokenProvider {
+public class JwtTokenProvider {
 
     public static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
     public static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;
     public static final String PROVIDER_CLAIM_NAME = "provider";
+    public static final String AUTHORITIES_CLAIM_NAME = "authorities";
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -38,12 +47,16 @@ public class TokenProvider {
 
         AuthProvider provider;
 
-        if (principal instanceof OAuth2UserPrincipal) {
-            OAuth2UserPrincipal oauth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
-            provider = oauth2UserPrincipal.getProvider();
+        if (principal instanceof UserProvider) {
+            UserProvider userProvider = (UserProvider) principal;
+            provider =  userProvider.getProvider();
         } else {
-            provider = AuthProvider.LOCAL;
+            throw new IllegalArgumentException();
         }
+
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
@@ -51,6 +64,7 @@ public class TokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(PROVIDER_CLAIM_NAME, provider.getRegistrationId())
+                .claim(AUTHORITIES_CLAIM_NAME, authorities)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -97,5 +111,26 @@ public class TokenProvider {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token);
+    }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        if (claims.get(PROVIDER_CLAIM_NAME) == null || claims.get(AUTHORITIES_CLAIM_NAME) == null) {
+            throw new IllegalArgumentException();
+        }
+
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_CLAIM_NAME).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+
+        UserDetails user = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(user, "", authorities);
     }
 }
