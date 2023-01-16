@@ -3,6 +3,7 @@ package com.example.oauth2.member.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
@@ -37,7 +38,7 @@ public class Member {
     private Boolean withdrawal;
 
     @Enumerated(EnumType.STRING)
-    private Authority authority;
+    private Role role;
 
     private Member(AuthProvider provider,
                    String providerId,
@@ -58,7 +59,7 @@ public class Member {
         this.nickname = nickname;
         this.image = image;
         this.withdrawal = false;
-        this.authority = Authority.ROLE_USER;
+        this.role = Role.ROLE_USER;
     }
 
     public static Member of(AuthProvider provider,
@@ -74,6 +75,24 @@ public class Member {
                 email,
                 null,
                 name,
+                firstName,
+                lastName,
+                nickname,
+                image);
+    }
+
+    public static Member of(String email,
+                            String password,
+                            String firstName,
+                            String lastName,
+                            String nickname,
+                            String image,
+                            PasswordEncoder encoder) {
+        return new Member(AuthProvider.LOCAL,
+                null,
+                email,
+                encoder.encode(password),
+                firstName + " " + lastName,
                 firstName,
                 lastName,
                 nickname,

@@ -12,10 +12,6 @@ public class UserPrincipal extends User implements UserProvider {
         super(username, password, authorities);
     }
 
-    public UserPrincipal(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-    }
-
     @Override
     public AuthProvider getProvider() {
         return AuthProvider.LOCAL;

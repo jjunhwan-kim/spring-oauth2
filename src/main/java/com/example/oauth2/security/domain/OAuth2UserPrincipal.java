@@ -34,7 +34,7 @@ public class OAuth2UserPrincipal implements OAuth2User, UserDetails, UserProvide
 
     public static OAuth2UserPrincipal create(Member member, Map<String, Object> attributes) {
         List<GrantedAuthority> authorities = Collections.
-                singletonList(new SimpleGrantedAuthority(member.getAuthority().toString()));
+                singletonList(new SimpleGrantedAuthority(member.getRole().name()));
 
         return new OAuth2UserPrincipal(
                 member.getProvider(),

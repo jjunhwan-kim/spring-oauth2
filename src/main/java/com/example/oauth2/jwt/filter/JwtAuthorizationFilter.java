@@ -1,5 +1,6 @@
-package com.example.oauth2.jwt;
+package com.example.oauth2.jwt.filter;
 
+import com.example.oauth2.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -17,11 +18,11 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -30,8 +31,8 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             String token = resolveToken(request);
 
             if (StringUtils.hasText(token)) {
-                jwtTokenProvider.validateToken(token);
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                jwtProvider.validateToken(token);
+                Authentication authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {

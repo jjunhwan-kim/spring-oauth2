@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class JwtToken {
+public class Jwt {
     private final String accessToken;
     private final String refreshToken;
 }

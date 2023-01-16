@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenProvider {
+public class JwtProvider {
 
     public static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
     public static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;
@@ -41,7 +41,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
     }
 
-    public JwtToken createToken(Authentication authentication) {
+    public Jwt createToken(Authentication authentication) {
 
         Object principal = authentication.getPrincipal();
 
@@ -80,7 +80,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
-        return new JwtToken(accessToken, refreshToken);
+        return new Jwt(accessToken, refreshToken);
     }
 
     public String getEmail(String token) {

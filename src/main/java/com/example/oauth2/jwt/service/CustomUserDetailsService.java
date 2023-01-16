@@ -1,4 +1,4 @@
-package com.example.oauth2.jwt;
+package com.example.oauth2.jwt.service;
 
 import com.example.oauth2.member.domain.Member;
 import com.example.oauth2.member.repository.MemberRepository;
@@ -20,13 +20,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
+    @Transactional(readOnly = true)
     @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + email));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
+        Member member = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + username));
+
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().name());
 
         return new UserPrincipal(member.getEmail(),
                 member.getPassword(),

@@ -1,38 +1,59 @@
 package com.example.oauth2.security.config;
 
-import com.example.oauth2.jwt.JwtAccessDeniedHandler;
-import com.example.oauth2.jwt.JwtAuthenticationEntryPoint;
-import com.example.oauth2.jwt.config.JwtSecurityConfig;
+import com.example.oauth2.jwt.filter.JwtAuthenticationFilter;
+import com.example.oauth2.jwt.filter.JwtAuthorizationFilter;
+import com.example.oauth2.jwt.handler.JwtAccessDeniedHandler;
+import com.example.oauth2.jwt.handler.JwtAuthenticationEntryPoint;
+import com.example.oauth2.jwt.handler.JwtAuthenticationSuccessHandler;
 import com.example.oauth2.oauth2.config.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.example.oauth2.oauth2.config.OAuth2AuthenticationFailureHandler;
 import com.example.oauth2.oauth2.config.OAuth2AuthenticationSuccessHandler;
 import com.example.oauth2.oauth2.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtAuthorizationFilter jwtAuthorizationFilter;
+    private final JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    private final JwtSecurityConfig jwtSecurityConfig;
+
+    @Bean
+    protected PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .formLogin().disable()
-                .httpBasic().disable()
+                .addFilterBefore(new JwtAuthenticationFilter(
+                        authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)),
+                        jwtAuthenticationSuccessHandler), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthorizationFilter, JwtAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
@@ -41,6 +62,7 @@ public class SecurityConfig {
                 .antMatchers(
                         "/",
                         "/hello",
+                        "/signup",
                         "/error",
                         "/favicon.ico",
                         "/**/*.png",
@@ -65,9 +87,7 @@ public class SecurityConfig {
                 .userService(customOAuth2UserService)
                 .and()
                 .successHandler(oAuth2AuthenticationSuccessHandler)
-                .failureHandler(oAuth2AuthenticationFailureHandler)
-                .and()
-                .apply(jwtSecurityConfig);
+                .failureHandler(oAuth2AuthenticationFailureHandler);
 
         return http.build();
     }
