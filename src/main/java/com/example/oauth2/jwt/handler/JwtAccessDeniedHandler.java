@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
@@ -14,9 +13,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 	@Override
 	public void handle(HttpServletRequest request,
 					   HttpServletResponse response,
-					   AccessDeniedException accessDeniedException) throws IOException {
-		response.sendError(HttpServletResponse.SC_FORBIDDEN,
-				accessDeniedException.getLocalizedMessage());
+					   AccessDeniedException accessDeniedException) {
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 	}
 }
 

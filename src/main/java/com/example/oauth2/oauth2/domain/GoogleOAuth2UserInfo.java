@@ -1,14 +1,13 @@
-package com.example.oauth2.oauth2.user;
+package com.example.oauth2.oauth2.domain;
 
 import java.util.Map;
 
-public class NaverOAuth2UserInfo implements OAuth2UserInfo {
+public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
 
     private final Map<String, Object> attributes;
 
-    public NaverOAuth2UserInfo(Map<String, Object> attributes) {
-        // Naver 는 attributes 맵의 response 키의 값에 실제 attributes 맵이 할당되어 있음
-        this.attributes = (Map<String, Object>) attributes.get("response");
+    public GoogleOAuth2UserInfo(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     @Override
@@ -18,7 +17,7 @@ public class NaverOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getNameAttributeKey() {
-        return "id";
+        return "sub";
     }
 
     @Override
@@ -38,21 +37,21 @@ public class NaverOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getFirstName() {
-        return null;
+        return (String) attributes.get("given_name");
     }
 
     @Override
     public String getLastName() {
-        return null;
+        return (String) attributes.get("family_name");
     }
 
     @Override
     public String getNickname() {
-        return (String) attributes.get("nickname");
+        return null;
     }
 
     @Override
     public String getImage() {
-        return (String) attributes.get("profile_image");
+        return (String) attributes.get("picture");
     }
 }

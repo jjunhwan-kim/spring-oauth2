@@ -1,4 +1,4 @@
-package com.example.oauth2.oauth2.user;
+package com.example.oauth2.oauth2.domain;
 
 import com.example.oauth2.member.domain.AuthProvider;
 import com.example.oauth2.oauth2.exception.OAuth2AuthenticationProcessingException;

@@ -14,13 +14,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Component
-public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class JsonUsernamePasswordAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JwtProvider jwtProvider;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication) {
 
         Jwt token = jwtProvider.createToken(authentication);
 

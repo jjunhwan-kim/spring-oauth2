@@ -7,24 +7,29 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 일반 사용자 로그인을 처리하고 JWT 토큰을 발급합니다.
  */
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     /**
      * 사용자 인증이 필요한지 여부를 결정하는 URL을 설정합니다.
      */
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationSuccessHandler successHandler) {
-        this.setAuthenticationManager(authenticationManager);
-        setFilterProcessesUrl("/api/login");
+    public JsonUsernamePasswordAuthenticationFilter(String filterProcessUrl,
+                                                    AuthenticationManager authenticationManager,
+                                                    AuthenticationSuccessHandler successHandler,
+                                                    AuthenticationFailureHandler failureHandler) {
+        super(filterProcessUrl, authenticationManager);
         setAuthenticationSuccessHandler(successHandler);
+        setAuthenticationFailureHandler(failureHandler);
     }
 
     /**
@@ -48,7 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             String password = loginRequest.getPassword();
             UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
             return this.getAuthenticationManager().authenticate(authRequest);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new AuthenticationServiceException("Authentication parameter not supported");
         }
     }

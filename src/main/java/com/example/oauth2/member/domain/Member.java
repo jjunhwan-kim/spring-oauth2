@@ -48,7 +48,8 @@ public class Member {
                    String firstName,
                    String lastName,
                    String nickname,
-                   String image) {
+                   String image,
+                   Role role) {
         this.provider = provider;
         this.providerId = providerId;
         this.email = email;
@@ -59,7 +60,7 @@ public class Member {
         this.nickname = nickname;
         this.image = image;
         this.withdrawal = false;
-        this.role = Role.ROLE_USER;
+        this.role = role;
     }
 
     public static Member of(AuthProvider provider,
@@ -78,7 +79,8 @@ public class Member {
                 firstName,
                 lastName,
                 nickname,
-                image);
+                image,
+                Role.ROLE_USER);
     }
 
     public static Member of(String email,
@@ -96,7 +98,21 @@ public class Member {
                 firstName,
                 lastName,
                 nickname,
-                image);
+                image,
+                Role.ROLE_USER);
+    }
+
+    public static Member createDefaultAdmin(PasswordEncoder encoder) {
+        return new Member(AuthProvider.LOCAL,
+                null,
+                "admin@admin.com",
+                encoder.encode("admin"),
+                "admin",
+                null,
+                null,
+                "admin",
+                null,
+                Role.ROLE_ADMIN);
     }
 
     public void update(String name,
