@@ -1,6 +1,6 @@
 package com.example.oauth2.jwt.filter;
 
-import com.example.oauth2.jwt.JwtProvider;
+import com.example.oauth2.jwt.domain.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

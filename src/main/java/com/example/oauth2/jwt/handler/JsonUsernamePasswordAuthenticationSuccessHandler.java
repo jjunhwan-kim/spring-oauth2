@@ -1,8 +1,8 @@
 package com.example.oauth2.jwt.handler;
 
-import com.example.oauth2.jwt.Jwt;
-import com.example.oauth2.jwt.JwtProvider;
-import com.example.oauth2.jwt.domain.LoginResponse;
+import com.example.oauth2.jwt.domain.Jwt;
+import com.example.oauth2.jwt.domain.JwtProvider;
+import com.example.oauth2.jwt.response.LoginResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

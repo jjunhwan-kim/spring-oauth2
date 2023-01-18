@@ -1,4 +1,4 @@
-package com.example.oauth2.jwt;
+package com.example.oauth2.jwt.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

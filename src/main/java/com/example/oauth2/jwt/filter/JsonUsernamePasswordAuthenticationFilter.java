@@ -1,6 +1,6 @@
 package com.example.oauth2.jwt.filter;
 
-import com.example.oauth2.jwt.domain.LoginRequest;
+import com.example.oauth2.jwt.request.LoginRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;

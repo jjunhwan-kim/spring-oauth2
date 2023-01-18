@@ -9,6 +9,9 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * OAuth2 인증 요청 객체(OAuth2AuthorizationRequest)를 직렬화 한 값과 요청 URL 의 redirect_uri 파라미터 값을 쿠키에 저장하고 불러옵니다.
+ */
 @Component
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
     public static final String OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
@@ -16,7 +19,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
     private static final int cookieExpireSeconds = 180;
 
     /**
-     * request 객체에서 OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME 쿠키를 찾아 역질렬화하여 OAuth2AuthorizationRequest 객체롤 리턴합니다.
+     * request 객체에서 oauth2_auth_request 쿠키를 찾아 역직렬화하여 OAuth2AuthorizationRequest 객체롤 리턴합니다.
      * @param request HTTP 요청 객체
      * @return OAuth2AuthorizationRequest 객체
      */
@@ -48,11 +51,21 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
         }
     }
 
+    /**
+     * request 객체에서 OAuth2AuthorizationRequest 객체를 찾아 리턴합니다.
+     * @param request
+     * @return
+     */
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
         return this.loadAuthorizationRequest(request);
     }
 
+    /**
+     * request 객체에서 oauth2_auth_request, redirect_uri 쿠키를 찾아 response 객체에 쿠키를 만료처리합니다.
+     * @param request
+     * @param response
+     */
     public void removeAuthorizationRequestCookies(HttpServletRequest request, HttpServletResponse response) {
         CookieUtils.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
         CookieUtils.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);

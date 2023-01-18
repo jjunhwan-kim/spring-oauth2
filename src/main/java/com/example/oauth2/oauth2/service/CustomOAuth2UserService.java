@@ -27,11 +27,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
 
     /**
-     * DefaultOAuth2UserService 구현체를 사용하여 oAuth2UserRequest 의 사용자 정보를 불러옵니다. (oAuth2User)
-     *
-     * @param oAuth2UserRequest
-     * @return
+     * OAuth2 사용자 정보의 유효성을 검사하고 DB 에 저장합니다.
+     * @param oAuth2UserRequest OAuth2 요청
+     * @return OAuth2User OAuth2 사용자 정보
      * @throws OAuth2AuthenticationException
+     *         OAuth2 사용자 정보가 유효하지 않을 때
      */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -49,10 +49,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     * OAuth2 사용자 정보를
-     * @param userRequest
-     * @param oAuth2User
-     * @return
+     * OAuth2 사용자 정보의 유효성을 검사하고 DB 에 저장합니다.
+     * @param userRequest OAuth2 요청
+     * @param oAuth2User OAuth2 사용자 정보
+     * @return OAuth2UserPrincipal
      */
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
@@ -90,8 +90,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return OAuth2UserPrincipal.create(member, oAuth2UserInfo.getAttributes());
     }
 
+    /**
+     * 새로운 OAuth2 인증된 사용자를 DB 에 저장합니다.
+     * @param provider OAuth2 공급자
+     * @param oAuth2UserInfo OAuth2 사용자 정보
+     * @return Member
+     */
     private Member registerNewUser(AuthProvider provider, OAuth2UserInfo oAuth2UserInfo) {
-
         Member member = Member.of(provider,
                 oAuth2UserInfo.getId(),
                 oAuth2UserInfo.getEmail(),
@@ -104,6 +109,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return memberRepository.save(member);
     }
 
+    /**
+     * DB 에 존재하는 OAuth2 인증된 사용자 정보를 업데이트합니다.
+     * @param member DB 에 존재하는 사용자 정보
+     * @param oAuth2UserInfo OAuth2 사용자 정보
+     * @return Member
+     */
     private Member updateExistingUser(Member member, OAuth2UserInfo oAuth2UserInfo) {
         member.update(oAuth2UserInfo.getName(),
                 oAuth2UserInfo.getFirstName(),

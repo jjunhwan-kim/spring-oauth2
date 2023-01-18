@@ -5,6 +5,9 @@ import com.example.oauth2.oauth2.exception.OAuth2AuthenticationProcessingExcepti
 
 import java.util.Map;
 
+/**
+ * OAuth2 공급자에 따라 인증된 사용자의 정보를 처리하여 해당하는 OAuth2UserInfo 구현체를 리턴합니다.
+ */
 public class OAuth2UserInfoFactory {
 
     public static OAuth2UserInfo getOAuth2UserInfo(String registrationId,
@@ -16,7 +19,7 @@ public class OAuth2UserInfoFactory {
         } else if (AuthProvider.KAKAO.getRegistrationId().equals(registrationId)) {
             return new KakaoOAuth2UserInfo(attributes);
         } else {
-            throw new OAuth2AuthenticationProcessingException("Sorry! Login with " + registrationId + " is not supported yet.");
+            throw new OAuth2AuthenticationProcessingException("Login with " + registrationId + " is not supported");
         }
     }
 }

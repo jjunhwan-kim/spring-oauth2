@@ -1,7 +1,8 @@
-package com.example.oauth2.oauth2.config;
+package com.example.oauth2.oauth2.handler;
 
-import com.example.oauth2.jwt.Jwt;
-import com.example.oauth2.jwt.JwtProvider;
+import com.example.oauth2.jwt.domain.Jwt;
+import com.example.oauth2.jwt.domain.JwtProvider;
+import com.example.oauth2.oauth2.config.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.example.oauth2.oauth2.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,11 @@ import java.util.Optional;
 
 import static com.example.oauth2.oauth2.config.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
 
+/**
+ * OAuth2 인증 성공시 JWT AccessToken 과 RefreshToken 을 생성하여
+ * 최초에 요청한 redirect_uri 파라미터 값의 주소에
+ * access_token, refresh_token 쿼리 파라미터로 리디렉션합니다.
+ */
 @RequiredArgsConstructor
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {

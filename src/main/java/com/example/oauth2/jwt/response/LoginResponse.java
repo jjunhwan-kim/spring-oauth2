@@ -1,4 +1,4 @@
-package com.example.oauth2.jwt.domain;
+package com.example.oauth2.jwt.response;
 
 import lombok.AccessLevel;
 import lombok.Getter;

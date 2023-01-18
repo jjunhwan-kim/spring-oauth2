@@ -1,5 +1,6 @@
-package com.example.oauth2.jwt;
+package com.example.oauth2.jwt.domain;
 
+import com.example.oauth2.jwt.domain.Jwt;
 import com.example.oauth2.jwt.exception.InvalidTokenException;
 import com.example.oauth2.member.domain.AuthProvider;
 import com.example.oauth2.security.domain.UserProvider;
