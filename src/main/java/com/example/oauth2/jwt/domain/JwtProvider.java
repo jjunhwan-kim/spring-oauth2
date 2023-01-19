@@ -1,7 +1,7 @@
 package com.example.oauth2.jwt.domain;
 
-import com.example.oauth2.jwt.domain.Jwt;
 import com.example.oauth2.jwt.exception.InvalidTokenException;
+import com.example.oauth2.jwt.service.RefreshTokenService;
 import com.example.oauth2.member.domain.AuthProvider;
 import com.example.oauth2.security.domain.UserProvider;
 import io.jsonwebtoken.Claims;
@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Component
 public class JwtProvider {
 
@@ -32,7 +34,7 @@ public class JwtProvider {
     public static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;
     public static final String PROVIDER_CLAIM_NAME = "provider";
     public static final String AUTHORITIES_CLAIM_NAME = "authorities";
-
+    private final RefreshTokenService refreshTokenService;
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
@@ -82,6 +84,18 @@ public class JwtProvider {
                 .compact();
 
         return new Jwt(accessToken, refreshToken);
+    }
+
+    public void saveRefreshToken(Authentication authentication, String token) {
+        String email = authentication.getName();
+        Object principal = authentication.getPrincipal();
+
+        if (!(principal instanceof UserProvider)) {
+            throw new InvalidTokenException();
+        }
+
+        UserProvider provider = (UserProvider) principal;
+        refreshTokenService.saveOrUpdate(provider.getProvider(), email, token);
     }
 
     public String getEmail(String token) {

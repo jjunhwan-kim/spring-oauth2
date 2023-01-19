@@ -29,6 +29,8 @@ public class JsonUsernamePasswordAuthenticationSuccessHandler implements Authent
         LoginResponse loginResponse = LoginResponse.of(token.getAccessToken(), token.getRefreshToken());
 
         try {
+            jwtProvider.saveRefreshToken(authentication, token.getRefreshToken());
+
             String tokenResponse = objectMapper.writeValueAsString(loginResponse);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");

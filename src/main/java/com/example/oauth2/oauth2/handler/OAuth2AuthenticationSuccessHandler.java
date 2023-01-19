@@ -2,9 +2,11 @@ package com.example.oauth2.oauth2.handler;
 
 import com.example.oauth2.jwt.domain.Jwt;
 import com.example.oauth2.jwt.domain.JwtProvider;
+import com.example.oauth2.jwt.exception.InvalidTokenException;
 import com.example.oauth2.oauth2.config.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.example.oauth2.oauth2.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -32,11 +34,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        String targetUrl = determineTargetUrl(request, response, authentication);
+
+        String targetUrl;
+
+        try {
+            targetUrl = determineTargetUrl(request, response, authentication);
+        } catch (InvalidTokenException e) {
+            throw new InternalAuthenticationServiceException("Authentication Principal is not of type UserProvider");
+        }
+
         if (response.isCommitted()) {
             logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
             return;
         }
+
         clearAuthenticationAttributes(request, response);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
@@ -48,6 +59,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
         Jwt token = jwtProvider.createToken(authentication);
+
+        jwtProvider.saveRefreshToken(authentication, token.getRefreshToken());
 
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("access_token", token.getAccessToken())
